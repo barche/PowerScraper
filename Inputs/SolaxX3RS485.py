@@ -5,17 +5,47 @@ from twisted.web.client import Agent, readBody
 from pymodbus.constants import Defaults
 from twisted.web.http_headers import Headers
 from struct import unpack
+import os
+import time
 
 # import pprint
 # pp = pprint.PrettyPrinter(indent=4)
 
 Defaults.UnitId = 1
 
+LOOP_COUNT = 0
+ERROR_COUNT = 0
+
 def unsigned16(result, addr):
     return result.getRegister(addr)
 
 def join_msb_lsb(msb, lsb):
     return (msb << 16) | lsb
+
+def read_powerlimit(filename):
+    try:
+        # Check if the file exists
+        if not os.path.isfile(filename):
+            raise FileNotFoundError(f"The file {filename} does not exist.")
+        
+        # Get the current time and file modification time
+        current_time = time.time()
+        file_mod_time = os.path.getmtime(filename)
+        
+        # Check if the file is older than an hour
+        if (current_time - file_mod_time) > 3600:
+            return 100
+        
+        # Read the number from the file
+        with open(filename, 'r') as file:
+            number = file.read().strip()
+            
+            # Convert the number to an integer
+            return int(number)
+    
+    except Exception as e:
+        print(f"Error reading power limit: {e}")
+        return 100
 
 class SolaxX3RS485(object):
 
@@ -24,16 +54,34 @@ class SolaxX3RS485(object):
     def __init__(self, port, baudrate, parity, stopbits, timeout):
         self.port = port
         self.client = ModbusSerialClient(method="rtu", port=self.port, baudrate=baudrate, parity=parity,
-                                         stopbits=stopbits, timeout=timeout)
+                                         stopbits=stopbits, timeout=timeout, bytesize=8)
+        print("Solax setup complete")
         
     def fetch(self, completionCallback):
+        
+        global LOOP_COUNT
+        LOOP_COUNT += 1
+
+        if LOOP_COUNT % 20 == 0:
+            plim = read_powerlimit("/tmp/solarpowerlimit.txt")
+            wrresult = self.client.write_register(0X600, 6868)
+            time.sleep(2)
+            wrresult = self.client.write_register(0X60F, plim)
+            print("Set power limit with result", wrresult)
+            return
+
+        #result2 = self.client.read_holding_registers(0X332, 1)
+        #print("result", unsigned16(result2, 0))
+        #return
+
+       
         result = self.client.read_input_registers(0X400, 53)
         if isinstance(result, ModbusException):
             print("Exception from SolaxX3RS485: {}".format(result))
             return
-         
+        
         self.vals = {}
-        self.vals['name'] = self.port.replace("/dev/tty", "");
+        self.vals['name'] = 'USB0';
         self.vals['Pv1 input voltage'] = unsigned16(result, 0) / 10
         self.vals['Pv2 input voltage'] = unsigned16(result, 1) / 10
         self.vals['Pv1 input current'] = unsigned16(result, 2) / 10
