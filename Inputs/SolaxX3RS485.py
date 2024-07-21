@@ -62,8 +62,9 @@ class SolaxX3RS485(object):
         global LOOP_COUNT
         LOOP_COUNT += 1
 
+        plim = read_powerlimit("/tmp/solarpowerlimit.txt")
+
         if LOOP_COUNT % 20 == 0:
-            plim = read_powerlimit("/tmp/solarpowerlimit.txt")
             wrresult = self.client.write_register(0X600, 6868)
             time.sleep(2)
             wrresult = self.client.write_register(0X60F, plim)
@@ -119,5 +120,6 @@ class SolaxX3RS485(object):
         self.vals['Fault value of GFCI'] = unsigned16(result, 34) / 1000
         self.vals['Total Yield'] = join_msb_lsb(unsigned16(result, 36), unsigned16(result, 35)) / 1000
         self.vals['Yield Today'] = join_msb_lsb(unsigned16(result, 38), unsigned16(result, 37)) / 1000
+        self.vals['Power limit'] = plim
         
         completionCallback(self.vals)
