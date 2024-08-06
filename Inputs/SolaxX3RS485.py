@@ -64,16 +64,23 @@ class SolaxX3RS485(object):
 
         plim = read_powerlimit("/tmp/solarpowerlimit.txt")
 
-        if LOOP_COUNT % 20 == 0:
+        if LOOP_COUNT % 5 == 0:
+            current_limit_result = self.client.read_holding_registers(0X332, 1)
+            current_limit = unsigned16(current_limit_result, 0)
+            print("current power limit: ", current_limit)
+            if plim == current_limit:
+                return
+
             wrresult = self.client.write_register(0X600, 6868)
             time.sleep(2)
             wrresult = self.client.write_register(0X60F, plim)
             print("Set power limit with result", wrresult)
+            if plim == 100:
+                time.sleep(2)
+                wrresult = self.client.write_register(0X610, 1)
+                print("Set inverter enable result", wrresult)
             return
 
-        #result2 = self.client.read_holding_registers(0X332, 1)
-        #print("result", unsigned16(result2, 0))
-        #return
 
        
         result = self.client.read_input_registers(0X400, 53)
