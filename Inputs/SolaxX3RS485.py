@@ -66,6 +66,9 @@ class SolaxX3RS485(object):
 
         if LOOP_COUNT % 5 == 0:
             current_limit_result = self.client.read_holding_registers(0X332, 1)
+            if isinstance(current_limit_result, ModbusException):
+                print("Exception reading current power limit: {}".format(current_limit_result))
+                return
             current_limit = unsigned16(current_limit_result, 0)
             print("current power limit: ", current_limit)
             if plim == current_limit:
