@@ -90,46 +90,49 @@ class SolaxX3RS485(object):
         if isinstance(result, ModbusException):
             print("Exception from SolaxX3RS485: {}".format(result))
             return
+        try:
+            self.vals = {}
+            self.vals['name'] = 'USB0';
+            self.vals['Pv1 input voltage'] = unsigned16(result, 0) / 10
+            self.vals['Pv2 input voltage'] = unsigned16(result, 1) / 10
+            self.vals['Pv1 input current'] = unsigned16(result, 2) / 10
+            self.vals['Pv2 input current'] = unsigned16(result, 3) / 10
+            self.vals['Grid Voltage Phase 1'] = unsigned16(result, 4) / 10
+            self.vals['Grid Voltage Phase 2'] = unsigned16(result, 5) / 10
+            self.vals['Grid Voltage Phase 3'] = unsigned16(result, 6) / 10
+            self.vals['Grid Frequency Phase 1'] = unsigned16(result, 7) / 100
+            self.vals['Grid Frequency Phase 2'] = unsigned16(result, 8) / 100
+            self.vals['Grid Frequency Phase 3'] = unsigned16(result, 9) / 100
+            self.vals['Output Current Phase 1'] = unsigned16(result, 10) / 10
+            self.vals['Output Current Phase 2'] = unsigned16(result, 11) / 10
+            self.vals['Output Current Phase 3'] = unsigned16(result, 12) / 10
+            self.vals['Temperature'] = unsigned16(result, 13)
+            self.vals['Inverter Power'] = unsigned16(result, 14)
+            self.vals['RunMode'] = unsigned16(result, 15)
+            self.vals['Output Power Phase 1'] = unsigned16(result, 16)
+            self.vals['Output Power Phase 2'] = unsigned16(result, 17)
+            self.vals['Output Power Phase 3'] = unsigned16(result, 18)
+            self.vals['Total DC Power'] = unsigned16(result, 19)
+            self.vals['PV1 DC Power'] = unsigned16(result, 20)
+            self.vals['PV2 DC Power'] = unsigned16(result, 21)
+            self.vals['Fault value of Phase 1 Voltage'] = unsigned16(result, 22) / 10
+            self.vals['Fault value of Phase 2 Voltage'] = unsigned16(result, 23) / 10
+            self.vals['Fault value of Phase 3 Voltage'] = unsigned16(result, 24) / 10
+            self.vals['Fault value of Phase 1 Frequency'] = unsigned16(result, 25) / 100
+            self.vals['Fault value of Phase 2 Frequency'] = unsigned16(result, 26) / 100
+            self.vals['Fault value of Phase 3 Frequency'] = unsigned16(result, 27) / 100
+            self.vals['Fault value of Phase 1 DCI'] = unsigned16(result, 28) / 1000
+            self.vals['Fault value of Phase 2 DCI'] = unsigned16(result, 29) / 1000
+            self.vals['Fault value of Phase 3 DCI'] = unsigned16(result, 30) / 1000
+            self.vals['Fault value of PV1 Voltage'] = unsigned16(result, 31) / 10
+            self.vals['Fault value of PV2 Voltage'] = unsigned16(result, 32) / 10
+            self.vals['Fault value of Temperature'] = unsigned16(result, 33)
+            self.vals['Fault value of GFCI'] = unsigned16(result, 34) / 1000
+            self.vals['Total Yield'] = join_msb_lsb(unsigned16(result, 36), unsigned16(result, 35)) / 1000
+            self.vals['Yield Today'] = join_msb_lsb(unsigned16(result, 38), unsigned16(result, 37)) / 1000
+            self.vals['Power limit'] = plim
         
-        self.vals = {}
-        self.vals['name'] = 'USB0';
-        self.vals['Pv1 input voltage'] = unsigned16(result, 0) / 10
-        self.vals['Pv2 input voltage'] = unsigned16(result, 1) / 10
-        self.vals['Pv1 input current'] = unsigned16(result, 2) / 10
-        self.vals['Pv2 input current'] = unsigned16(result, 3) / 10
-        self.vals['Grid Voltage Phase 1'] = unsigned16(result, 4) / 10
-        self.vals['Grid Voltage Phase 2'] = unsigned16(result, 5) / 10
-        self.vals['Grid Voltage Phase 3'] = unsigned16(result, 6) / 10
-        self.vals['Grid Frequency Phase 1'] = unsigned16(result, 7) / 100
-        self.vals['Grid Frequency Phase 2'] = unsigned16(result, 8) / 100
-        self.vals['Grid Frequency Phase 3'] = unsigned16(result, 9) / 100
-        self.vals['Output Current Phase 1'] = unsigned16(result, 10) / 10
-        self.vals['Output Current Phase 2'] = unsigned16(result, 11) / 10
-        self.vals['Output Current Phase 3'] = unsigned16(result, 12) / 10
-        self.vals['Temperature'] = unsigned16(result, 13)
-        self.vals['Inverter Power'] = unsigned16(result, 14)
-        self.vals['RunMode'] = unsigned16(result, 15)
-        self.vals['Output Power Phase 1'] = unsigned16(result, 16)
-        self.vals['Output Power Phase 2'] = unsigned16(result, 17)
-        self.vals['Output Power Phase 3'] = unsigned16(result, 18)
-        self.vals['Total DC Power'] = unsigned16(result, 19)
-        self.vals['PV1 DC Power'] = unsigned16(result, 20)
-        self.vals['PV2 DC Power'] = unsigned16(result, 21)
-        self.vals['Fault value of Phase 1 Voltage'] = unsigned16(result, 22) / 10
-        self.vals['Fault value of Phase 2 Voltage'] = unsigned16(result, 23) / 10
-        self.vals['Fault value of Phase 3 Voltage'] = unsigned16(result, 24) / 10
-        self.vals['Fault value of Phase 1 Frequency'] = unsigned16(result, 25) / 100
-        self.vals['Fault value of Phase 2 Frequency'] = unsigned16(result, 26) / 100
-        self.vals['Fault value of Phase 3 Frequency'] = unsigned16(result, 27) / 100
-        self.vals['Fault value of Phase 1 DCI'] = unsigned16(result, 28) / 1000
-        self.vals['Fault value of Phase 2 DCI'] = unsigned16(result, 29) / 1000
-        self.vals['Fault value of Phase 3 DCI'] = unsigned16(result, 30) / 1000
-        self.vals['Fault value of PV1 Voltage'] = unsigned16(result, 31) / 10
-        self.vals['Fault value of PV2 Voltage'] = unsigned16(result, 32) / 10
-        self.vals['Fault value of Temperature'] = unsigned16(result, 33)
-        self.vals['Fault value of GFCI'] = unsigned16(result, 34) / 1000
-        self.vals['Total Yield'] = join_msb_lsb(unsigned16(result, 36), unsigned16(result, 35)) / 1000
-        self.vals['Yield Today'] = join_msb_lsb(unsigned16(result, 38), unsigned16(result, 37)) / 1000
-        self.vals['Power limit'] = plim
-        
-        completionCallback(self.vals)
+            completionCallback(self.vals)
+        except Exception as e:
+            print(f"Error unpacking input registers: {e}")
+            return
